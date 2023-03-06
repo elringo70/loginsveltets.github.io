@@ -1,4 +1,5 @@
 import type { Actions } from '@sveltejs/kit';
+import { error, fail } from '@sveltejs/kit';
 
 export const actions: Actions = {
 	submit: async ({ request }) => {
@@ -11,5 +12,16 @@ export const actions: Actions = {
 		};
 
 		return { success: true };
+	},
+	googleLogin: async ({ request }) => {
+		try {
+			const form = await request.formData();
+			const terms = form.get('terms');
+
+			console.log(terms);
+		} catch (err) {
+			console.error(err);
+			return error(500, { message: 'Error en el servidor' });
+		}
 	}
 };

@@ -1,8 +1,11 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { enhance, type SubmitFunction } from '$app/forms';
 	import { setContext } from 'svelte';
 
 	import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+	import Swal from 'sweetalert2';
+
 	import { auth } from '../../utils/firebase';
 
 	import { Input, Button } from '../../lib/components/index';
@@ -21,12 +24,26 @@
 		};
 	};
 
-	const googleLogin = async () => {
-		try {
-			const provider = new GoogleAuthProvider();
-			const user = await signInWithPopup(auth, provider);
-			setContext('user', user);
-		} catch (error) {}
+	let terms: HTMLInputElement;
+	const loginWithGoogle = async () => {
+		if (!terms.checked) {
+			Swal.fire({
+				icon: 'warning',
+				title: 'Terminos y condiciones',
+				text: 'Debes aceptar los terminos y condiciones'
+			});
+		} else {
+			try {
+				const provider = new GoogleAuthProvider();
+				const user = await signInWithPopup(auth, provider);
+
+				if (user) {
+					setContext('user', user);
+				}
+			} catch (error) {
+				console.log(error);
+			}
+		}
 	};
 </script>
 
@@ -52,7 +69,13 @@
 									/>
 
 									<div class="form-check d-flex justify-content-center">
-										<input class="form-check-input me-2" type="checkbox" name="terms" required />
+										<input
+											class="form-check-input me-2"
+											type="checkbox"
+											name="terms"
+											required
+											bind:this={terms}
+										/>
 										<label class="form-check-label" for="terms">
 											Aceptar <a href="#!">Terminos y condiciones</a>
 										</label>
@@ -60,10 +83,11 @@
 
 									<div class="d-flex justify-content-center align-items-end" style="height: 35px">
 										<p class="text-center align-bottom m-0">Registrarse con</p>
-										<div class="h-100" style="cursor: pointer" on:click={googleLogin}>
+
+										<div class="" style="cursor: pointer" on:click={loginWithGoogle}>
 											<img
 												src="https://www.pngmart.com/files/16/Google-Logo-PNG-Image.png"
-												class="h-100"
+												style="height: 35px"
 												alt=""
 											/>
 										</div>
