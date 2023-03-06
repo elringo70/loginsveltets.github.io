@@ -1,5 +1,9 @@
 <script lang="ts">
 	import { enhance, type SubmitFunction } from '$app/forms';
+	import { setContext } from 'svelte';
+
+	import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+	import { auth } from '../../utils/firebase';
 
 	import { Input, Button } from '../../lib/components/index';
 
@@ -15,6 +19,14 @@
 					break;
 			}
 		};
+	};
+
+	const googleLogin = async () => {
+		try {
+			const provider = new GoogleAuthProvider();
+			const user = await signInWithPopup(auth, provider);
+			setContext('user', user);
+		} catch (error) {}
 	};
 </script>
 
@@ -39,15 +51,26 @@
 										required
 									/>
 
-									<div class="form-check d-flex justify-content-center mb-5">
-										<input class="form-check-input me-2" type="checkbox" name="terms" />
+									<div class="form-check d-flex justify-content-center">
+										<input class="form-check-input me-2" type="checkbox" name="terms" required />
 										<label class="form-check-label" for="terms">
 											Aceptar <a href="#!">Terminos y condiciones</a>
 										</label>
 									</div>
 
+									<div class="d-flex justify-content-center align-items-end" style="height: 35px">
+										<p class="text-center align-bottom m-0">Registrarse con</p>
+										<div class="h-100" style="cursor: pointer" on:click={googleLogin}>
+											<img
+												src="https://www.pngmart.com/files/16/Google-Logo-PNG-Image.png"
+												class="h-100"
+												alt=""
+											/>
+										</div>
+									</div>
+
 									<div class="d-grid mt-4">
-										<Button buttonColor="btn-primary" type="submit" {disabled} text="Login" />
+										<Button buttonColor="btn-primary" type="submit" {disabled} />
 									</div>
 								</form>
 							</div>
