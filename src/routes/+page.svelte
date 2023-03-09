@@ -44,17 +44,21 @@
 					</p>
 				</div>
 
-				<div class="d-flex justify-content-center align-items-end" style="height: 35px">
-					<p class="text-center align-bottom m-0">Login con</p>
+				<form action="?/login" method="post">
+					<div class="d-flex justify-content-center align-items-end" style="height: 35px">
+						<p class="text-center align-bottom m-0">Login con</p>
 
-					<div class="" style="cursor: pointer">
-						<img
-							src="https://www.pngmart.com/files/16/Google-Logo-PNG-Image.png"
-							style="height: 35px"
-							alt=""
-						/>
+						<button type="submit" class="btn"
+							><div style="cursor: pointer">
+								<img
+									src="https://www.pngmart.com/files/16/Google-Logo-PNG-Image.png"
+									style="height: 35px"
+									alt=""
+								/>
+							</div></button
+						>
 					</div>
-				</div>
+				</form>
 			</div>
 		</div>
 	</div>

@@ -1,3 +1,11 @@
+import {
+	apiKey,
+	authDomain,
+	projectId,
+	storageBucket,
+	messagingSenderId,
+	appId
+} from '$env/static/private';
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
@@ -6,12 +14,12 @@ import { getAuth } from 'firebase/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-	apiKey: 'AIzaSyCgZ03AqzzGw42SXerWa-RNG8ozX2wM7ZY',
-	authDomain: 'nodejs-firebase-7a6fc.firebaseapp.com',
-	projectId: 'nodejs-firebase-7a6fc',
-	storageBucket: 'nodejs-firebase-7a6fc.appspot.com',
-	messagingSenderId: '686413994044',
-	appId: '1:686413994044:web:5115f470fd8ec8343dcb39'
+	apiKey: apiKey,
+	authDomain: authDomain,
+	projectId: projectId,
+	storageBucket: storageBucket,
+	messagingSenderId: messagingSenderId,
+	appId: appId
 };
 
 // Initialize Firebase

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { enhance, type SubmitFunction } from '$app/forms';
 	import { setContext } from 'svelte';
 
@@ -36,6 +35,8 @@
 			try {
 				const provider = new GoogleAuthProvider();
 				const user = await signInWithPopup(auth, provider);
+
+				console.log(user);
 
 				if (user) {
 					setContext('user', user);
