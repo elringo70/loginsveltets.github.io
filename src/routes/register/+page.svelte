@@ -39,7 +39,7 @@
 				console.log(user);
 
 				if (user) {
-					setContext('user', user);
+					setContext('user', user.user);
 				}
 			} catch (error) {
 				console.log(error);

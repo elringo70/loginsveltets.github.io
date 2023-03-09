@@ -1,6 +1,17 @@
-import type { Handle } from '@sveltejs/kit';
+import { redirect, type Handle } from '@sveltejs/kit';
+import { authenticateUser } from './lib/server';
 
 export const handle: Handle = async ({ event, resolve }) => {
+	console.log(event.locals);
+	//event.locals.user = authenticateUser(event, );
+
+	if (event.url.pathname.startsWith('/profile')) {
+		if (!event.locals.user) {
+			throw redirect(303, '/');
+		}
+	}
+
 	const response = await resolve(event);
+
 	return response;
 };
