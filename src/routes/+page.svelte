@@ -1,20 +1,28 @@
 <script lang="ts">
-	import { enhance, type SubmitFunction } from '$app/forms';
+	import { auth } from '../utils/firebase';
+	import { getIdToken, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 
 	import { Input, Button } from '../lib/components/index';
 
 	let disabled = false;
 
-	const submit: SubmitFunction = () => {
-		return async ({ result, update }) => {
-			switch (result.type) {
-				case 'success':
-					await update();
-					break;
-				case 'failure':
-					break;
-			}
-		};
+	const loginWithGoogle = async () => {
+		const provider = new GoogleAuthProvider();
+		const result = await signInWithPopup(auth, provider);
+
+		try {
+			const credential = GoogleAuthProvider.credentialFromResult(result);
+			const token = credential?.accessToken;
+			fetch('/api/login', {
+				method: 'post',
+				body: JSON.stringify(token),
+				headers: {
+					'content-type': 'application/json'
+				}
+			});
+		} catch (error) {
+			console.log(error);
+		}
 	};
 </script>
 
@@ -26,7 +34,7 @@
 	<div class="container h-100">
 		<div class="row justify-content-center h-100 align-items-center">
 			<div class="col-5 bg-white p-5 shadow rounded">
-				<form action="?/submit" method="post" use:enhance={submit} autocomplete="off">
+				<form action="?/submit" method="post" autocomplete="off">
 					<Input name="login" label="Login" placeholder="Usuario" required />
 					<Input name="password" label="Contraseña" placeholder="Contraseña" required />
 					<div class="row mt-3">
@@ -44,21 +52,19 @@
 					</p>
 				</div>
 
-				<form action="?/login" method="post">
-					<div class="d-flex justify-content-center align-items-end" style="height: 35px">
-						<p class="text-center align-bottom m-0">Login con</p>
+				<div class="d-flex justify-content-center align-items-end" style="height: 35px">
+					<p class="text-center align-bottom m-0">Login con</p>
 
-						<button type="submit" class="btn"
-							><div style="cursor: pointer">
-								<img
-									src="https://www.pngmart.com/files/16/Google-Logo-PNG-Image.png"
-									style="height: 35px"
-									alt=""
-								/>
-							</div></button
-						>
-					</div>
-				</form>
+					<button type="button" class="btn" on:click={loginWithGoogle}
+						><div style="cursor: pointer">
+							<img
+								src="https://www.pngmart.com/files/16/Google-Logo-PNG-Image.png"
+								style="height: 35px"
+								alt=""
+							/>
+						</div></button
+					>
+				</div>
 			</div>
 		</div>
 	</div>
