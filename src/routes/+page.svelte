@@ -1,29 +1,25 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { auth } from '../utils/firebase';
-	import { getIdToken, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+	import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'firebase/auth';
 
 	import { Input, Button } from '../lib/components/index';
 
 	let disabled = false;
 
-	const loginWithGoogle = async () => {
+	async function loginWithGoogle() {
 		const provider = new GoogleAuthProvider();
+
 		const result = await signInWithPopup(auth, provider);
 
-		try {
-			const credential = GoogleAuthProvider.credentialFromResult(result);
-			const token = credential?.accessToken;
-			fetch('/api/login', {
-				method: 'post',
-				body: JSON.stringify(token),
-				headers: {
-					'content-type': 'application/json'
-				}
+		goto('/profile')
+			.then(() => {
+				console.log('success');
+			})
+			.catch((error) => {
+				console.log(error);
 			});
-		} catch (error) {
-			console.log(error);
-		}
-	};
+	}
 </script>
 
 <svelte:head>
