@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts">
 	type ButtonTypes = 'submit' | 'button' | 'reset' | null | undefined;
 	type ButtonColor =
 		| 'btn-primary'
@@ -10,13 +10,13 @@
 		| 'btn-light'
 		| 'btn-dark'
 		| 'btn-link';
-</script>
 
-<script lang="ts">
 	export let text: string = 'Guardar';
 	export let type: ButtonTypes;
 	export let buttonColor: ButtonColor = 'btn-primary';
 	export let disabled: boolean = false;
+
+	export let onClick = () => {};
 </script>
 
-<button {type} class="btn {buttonColor}" {disabled}>{text}</button>
+<button {type} class="btn {buttonColor}" {disabled} on:click={onClick}>{text}</button>

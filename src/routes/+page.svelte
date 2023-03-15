@@ -1,23 +1,43 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { auth } from '../utils/firebase';
-	import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'firebase/auth';
+
+	import { signInWithPopup, GoogleAuthProvider, browserLocalPersistence } from 'firebase/auth';
+	import Swal from 'sweetalert2';
 
 	import { Input, Button } from '../lib/components/index';
 
 	let disabled = false;
 
 	async function loginWithGoogle() {
-		const provider = new GoogleAuthProvider();
+		try {
+			const provider = new GoogleAuthProvider();
+			const result = await signInWithPopup(auth, provider);
 
-		const result = await signInWithPopup(auth, provider);
+			if (result) {
+				goto('/profile');
+			}
+		} catch (error) {
+			console.log(error);
+			Swal.fire({
+				icon: 'error',
+				title: 'Oops...',
+				text: 'Error al loguearte'
+			});
+		}
+	}
 
-		goto('/profile')
+	async function logoutFromGoogle() {
+		auth
+			.signOut()
+			.then(function () {
+				return auth.setPersistence(browserLocalPersistence);
+			})
 			.then(() => {
-				console.log('success');
+				window.location.href = '/profile';
 			})
 			.catch((error) => {
-				console.log(error);
+				console.log(error.message);
 			});
 	}
 </script>
@@ -60,6 +80,16 @@
 							/>
 						</div></button
 					>
+
+					<div class="d-grid mt-4">
+						<Button
+							buttonColor="btn-primary"
+							type="button"
+							{disabled}
+							text="Logout"
+							onClick={logoutFromGoogle}
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
