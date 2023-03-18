@@ -1,9 +1,15 @@
 <script lang="ts">
-	import { enhance, type SubmitFunction } from '$app/forms';
-	import { setContext } from 'svelte';
+	import { applyAction, deserialize } from '$app/forms';
+	import type { ActionResult } from '@sveltejs/kit';
+	//import { createForm } from 'svelte-forms-lib';
 
-	import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-	import Swal from 'sweetalert2';
+	import {
+		GoogleAuthProvider,
+		signInWithPopup,
+		createUserWithEmailAndPassword
+	} from 'firebase/auth';
+
+	import Swal from 'sweetalert2/dist/sweetalert2.all.js';
 
 	import { auth } from '../../utils/firebase';
 
@@ -11,41 +17,91 @@
 
 	let disabled = false;
 
-	const submit: SubmitFunction = () => {
-		return async ({ result, update }) => {
-			switch (result.type) {
-				case 'success':
-					await update();
-					break;
-				case 'failure':
-					break;
+	async function createUserWithGoogle() {
+		try {
+			const formData = new FormData(this);
+
+			const email = formData.get('email') as string;
+			const password = formData.get('password') as string;
+
+			const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
+
+			if (userCredentials) {
+				const token = await auth.currentUser?.getIdToken();
+
+				const data = new FormData();
+				if (token) {
+					data.append('token', token);
+				}
+
+				const response = await fetch('?/loginWithGoogle', {
+					method: 'POST',
+					body: data
+				});
+
+				const result: ActionResult = deserialize(await response.text());
+
+				switch (result.type) {
+					case 'failure':
+						Swal.fire({
+							icon: 'error',
+							title: 'Error',
+							text: result?.data?.message
+						});
+						break;
+				}
+				applyAction(result);
 			}
-		};
-	};
+		} catch (error) {
+			await Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'Error al registrarse'
+			});
+		}
+	}
 
 	let terms: HTMLInputElement;
-	const loginWithGoogle = async () => {
-		if (!terms.checked) {
-			Swal.fire({
-				icon: 'warning',
-				title: 'Terminos y condiciones',
-				text: 'Debes aceptar los terminos y condiciones'
-			});
-		} else {
-			try {
-				const provider = new GoogleAuthProvider();
-				const user = await signInWithPopup(auth, provider);
+	async function loginWithGoogle() {
+		const provider = new GoogleAuthProvider();
+		await signInWithPopup(auth, provider);
 
-				console.log(user);
+		const token = await auth.currentUser?.getIdToken();
 
-				if (user) {
-					setContext('user', user.user);
-				}
-			} catch (error) {
-				console.log(error);
-			}
+		const data = new FormData();
+		if (token) {
+			data.append('token', token);
 		}
-	};
+
+		const response = await fetch('?/loginWithGoogle', {
+			method: 'POST',
+			body: data
+		});
+
+		const result: ActionResult = deserialize(await response.text());
+
+		switch (result.type) {
+			case 'failure':
+				Swal.fire({
+					icon: 'error',
+					title: 'Error',
+					text: result?.data?.message
+				});
+				break;
+		}
+		applyAction(result);
+	}
+
+	/* const { form, handleChange, handleSubmit } = createForm({
+		initialValues: {
+			email: '',
+			password: '',
+			confirmPassword: ''
+		},
+		onSubmit: (values) => {
+			console.log(values);
+		}
+	}); */
 </script>
 
 <section class="vh-100 bg-body-secondary">
@@ -58,8 +114,11 @@
 							<div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
 								<p class="text-center h1 fw-bold mb-5">Registrar</p>
 
-								<form action="?/submit" method="post" use:enhance={submit} autocomplete="off">
-									<Input name="name" placeholder="Nombre" required />
+								<form
+									method="post"
+									on:submit|preventDefault={createUserWithGoogle}
+									autocomplete="off"
+								>
 									<Input name="email" type="email" placeholder="Correo electrónico" required />
 									<Input name="password" type="password" placeholder="Contraseña" required />
 									<Input
@@ -82,22 +141,29 @@
 										</label>
 									</div>
 
-									<div class="d-flex justify-content-center align-items-end" style="height: 35px">
-										<p class="text-center align-bottom m-0">Registrarse con</p>
-
-										<div class="" style="cursor: pointer" on:click={loginWithGoogle}>
-											<img
-												src="https://www.pngmart.com/files/16/Google-Logo-PNG-Image.png"
-												style="height: 35px"
-												alt=""
-											/>
-										</div>
-									</div>
-
 									<div class="d-grid mt-4">
 										<Button buttonColor="btn-primary" type="submit" {disabled} />
 									</div>
 								</form>
+
+								<div
+									class="d-flex justify-content-center align-items-end mt-3"
+									style="height: 35px"
+								>
+									<p class="text-center align-bottom m-0">Registrarse con</p>
+
+									<form method="post" on:submit|preventDefault={loginWithGoogle}>
+										<button type="submit" class="btn"
+											><div style="cursor: pointer">
+												<img
+													src="https://www.pngmart.com/files/16/Google-Logo-PNG-Image.png"
+													style="height: 35px"
+													alt=""
+												/>
+											</div></button
+										>
+									</form>
+								</div>
 							</div>
 							<div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
 								<img
