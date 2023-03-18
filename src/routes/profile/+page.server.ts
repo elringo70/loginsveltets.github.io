@@ -11,14 +11,16 @@ export const load = (async ({ locals }) => {
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
-	logoutFromGoogle: async ({ request, cookies }) => {
+	logoutFromGoogle: async ({ request, cookies, locals }) => {
 		try {
 			const body = Object.fromEntries(await request.formData());
 
+			locals.user = null;
 			cookies.delete('session');
 
 			throw redirect(303, '/');
 		} catch (error) {
+			locals.user = null;
 			cookies.delete('session');
 			throw redirect(303, '/');
 		}
