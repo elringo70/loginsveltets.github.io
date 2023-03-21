@@ -4,10 +4,12 @@
 	import type { ActionResult } from '@sveltejs/kit';
 	import { auth } from '../utils/firebase';
 
-	import { signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword } from 'firebase/auth';
+	import { signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
 	import Swal from 'sweetalert2/dist/sweetalert2.all.js';
 
 	import { Input, Button } from '../lib/components/index';
+	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
 
 	let disabled = false;
 
@@ -49,7 +51,7 @@
 		applyAction(result);
 	}
 
-	async function loginWithEmailAndPassword(event: Event) {
+	/* async function loginWithEmailAndPassword(event: Event) {
 		try {
 			const formData = new FormData(this);
 
@@ -102,7 +104,23 @@
 					break;
 			}
 		}
-	}
+	} */
+
+	const loginInWithPopUpGoogle = async () => {
+		const provider = new GoogleAuthProvider();
+		const userCredentials = await signInWithPopup(auth, provider);
+		if (userCredentials.user) {
+			goto('/profile');
+		}
+	};
+
+	onMount(() => {
+		auth.onAuthStateChanged((user) => {
+			if (user) {
+				goto('/profile');
+			}
+		});
+	});
 </script>
 
 <svelte:head>
@@ -113,7 +131,7 @@
 	<div class="container h-100">
 		<div class="row justify-content-center h-100 align-items-center">
 			<div class="col-5 bg-white p-5 shadow rounded">
-				<form method="post" autocomplete="off" on:submit|preventDefault={loginWithEmailAndPassword}>
+				<form method="post" autocomplete="off">
 					<Input name="email" label="Login" placeholder="Usuario" required />
 					<Input
 						name="password"
@@ -141,17 +159,15 @@
 				<div class="d-flex justify-content-center align-items-end" style="height: 35px">
 					<p class="text-center align-bottom m-0">Login con</p>
 
-					<form method="post" on:submit|preventDefault={loginWithGoogle}>
-						<button type="submit" class="btn"
-							><div style="cursor: pointer">
-								<img
-									src="https://www.pngmart.com/files/16/Google-Logo-PNG-Image.png"
-									style="height: 35px"
-									alt=""
-								/>
-							</div></button
-						>
-					</form>
+					<button type="button" class="btn" on:click={loginInWithPopUpGoogle}
+						><div style="cursor: pointer">
+							<img
+								src="https://www.pngmart.com/files/16/Google-Logo-PNG-Image.png"
+								style="height: 35px"
+								alt=""
+							/>
+						</div></button
+					>
 				</div>
 			</div>
 		</div>
