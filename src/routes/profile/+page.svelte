@@ -9,7 +9,7 @@
 
 	import Swal from 'sweetalert2';
 
-	/* async function logoutFromGoogle() {
+	async function logoutFromGoogle() {
 		const formData = new FormData();
 		formData.append('logout', 'logout');
 
@@ -44,10 +44,10 @@
 				break;
 		}
 		applyAction(result);
-	} */
+	}
 </script>
 
-<!-- <section style="background-color: #eee;">
+<section style="background-color: #eee;">
 	<div class="container py-5">
 		<div class="row">
 			<div class="col-lg-4">
@@ -281,5 +281,3 @@
 		</div>
 	</div>
 </section>
- -->
-<h1>test</h1>
