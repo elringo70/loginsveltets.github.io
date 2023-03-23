@@ -1,6 +1,16 @@
-import { redirect, type Actions } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
+import { error, redirect, type Actions } from '@sveltejs/kit';
 
 const expiresIn = 1000 * 60 * 60 * 27 * 7;
+
+export const load = (async ({ locals }) => {
+	try {
+		return { user: JSON.parse(JSON.stringify(locals.user)) };
+	} catch (err: any) {
+		console.log('Error:', err);
+		throw error(500, err);
+	}
+}) satisfies PageServerLoad;
 
 export const actions: Actions = {
 	loginWithGoogle: async ({ request, cookies }) => {

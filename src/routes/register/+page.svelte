@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { applyAction, deserialize } from '$app/forms';
 	import type { ActionResult } from '@sveltejs/kit';
-	//import { createForm } from 'svelte-forms-lib';
 
 	import {
 		GoogleAuthProvider,
 		signInWithPopup,
-		createUserWithEmailAndPassword
+		createUserWithEmailAndPassword,
+		sendSignInLinkToEmail
 	} from 'firebase/auth';
 
 	import Swal from 'sweetalert2/dist/sweetalert2.all.js';
@@ -92,16 +92,29 @@
 		applyAction(result);
 	}
 
-	/* const { form, handleChange, handleSubmit } = createForm({
-		initialValues: {
-			email: '',
-			password: '',
-			confirmPassword: ''
-		},
-		onSubmit: (values) => {
-			console.log(values);
-		}
-	}); */
+	async function createUserWithEmailAndPasswordGoogle() {
+		const formData = new FormData(this);
+
+		const email = formData.get('email') as string;
+
+		const actionCodeSettings = {
+			// URL you want to redirect back to. The domain (www.example.com) for this
+			// URL must be in the authorized domains list in the Firebase Console.
+			url: 'http://127.0.0.1:5173/set-password',
+			handleCodeInApp: true
+		};
+
+		sendSignInLinkToEmail(auth, email, actionCodeSettings)
+			.then(() => {
+				localStorage.setItem('emailForSignIn', email);
+			})
+			.catch((error) => {
+				const errorCode = error.code;
+				const errorMessage = error.message;
+
+				console.log(errorCode, errorMessage);
+			});
+	}
 </script>
 
 <section class="vh-100 bg-body-secondary">
@@ -116,17 +129,17 @@
 
 								<form
 									method="post"
-									on:submit|preventDefault={createUserWithGoogle}
+									on:submit|preventDefault={createUserWithEmailAndPasswordGoogle}
 									autocomplete="off"
 								>
 									<Input name="email" type="email" placeholder="Correo electrónico" required />
-									<Input name="password" type="password" placeholder="Contraseña" required />
+									<!-- <Input name="password" type="password" placeholder="Contraseña" required />
 									<Input
 										name="confirm-password"
 										type="password"
 										placeholder="Confirmar contraseña"
 										required
-									/>
+									/> -->
 
 									<div class="form-check d-flex justify-content-center">
 										<input
@@ -142,7 +155,7 @@
 									</div>
 
 									<div class="d-grid mt-4">
-										<Button buttonColor="btn-primary" type="submit" {disabled} />
+										<Button buttonColor="btn-primary" type="submit" {disabled} text="Registrarse" />
 									</div>
 								</form>
 

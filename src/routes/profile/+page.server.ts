@@ -11,10 +11,8 @@ export const load = (async ({ locals }) => {
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
-	logoutFromGoogle: async ({ request, cookies, locals }) => {
+	logoutFromGoogle: async ({ cookies, locals }) => {
 		try {
-			const body = Object.fromEntries(await request.formData());
-
 			locals.user = null;
 			cookies.delete('session');
 

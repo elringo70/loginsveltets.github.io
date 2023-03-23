@@ -4,10 +4,17 @@
 	import type { ActionResult } from '@sveltejs/kit';
 	import { auth } from '../utils/firebase';
 
-	import { signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword } from 'firebase/auth';
+	import {
+		signInWithPopup,
+		GoogleAuthProvider,
+		signInWithEmailAndPassword,
+		isSignInWithEmailLink,
+		signInWithEmailLink
+	} from 'firebase/auth';
 	import Swal from 'sweetalert2/dist/sweetalert2.all.js';
 
 	import { Input, Button } from '../lib/components/index';
+	import { onMount } from 'svelte';
 
 	let disabled = false;
 
@@ -103,6 +110,24 @@
 			}
 		}
 	}
+
+	onMount(() => {
+		if (isSignInWithEmailLink(auth, window.location.href)) {
+			let email = localStorage.getItem('emailForSignIn') as string;
+
+			if (email) {
+				signInWithEmailLink(auth, email, window.location.href)
+					.then((result) => {
+						window.localStorage.removeItem('emailForSignIn');
+					})
+					.catch((error) => {
+						console.log(error);
+						// Some error occurred, you can inspect the code: error.code
+						// Common errors could be invalid email and invalid or expired OTPs.
+					});
+			}
+		}
+	});
 </script>
 
 <svelte:head>
