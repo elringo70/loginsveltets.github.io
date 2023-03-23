@@ -5,10 +5,11 @@ const publicRoutes = ['/', '/register', '/login'];
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const token = event.cookies.get('session') as string;
-	console.log(event.route.id);
+	const currentLocation = event.url.pathname;
 
+	let decodedToken = null;
 	try {
-		const decodedToken = await admin.auth().verifyIdToken(token);
+		decodedToken = await admin.auth().verifyIdToken(token);
 
 		const user = {
 			name: decodedToken.name,
@@ -18,15 +19,14 @@ export const handle: Handle = async ({ event, resolve }) => {
 		};
 
 		event.locals.user = user;
-
-		if (event.route.id !== null && event.route.id.startsWith('/profile')) {
-			throw redirect(303, '/profile');
-		}
 	} catch (error) {
 		event.locals.user = null;
 		event.cookies.delete('session');
-		console.log('catch');
+
+		if (!publicRoutes.includes(currentLocation)) throw redirect(303, '/');
 	}
+
+	if (decodedToken && publicRoutes.includes(currentLocation)) throw redirect(301, '/profile');
 
 	const response = await resolve(event);
 	return response;

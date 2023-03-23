@@ -155,11 +155,7 @@
 									<form method="post" on:submit|preventDefault={loginWithGoogle}>
 										<button type="submit" class="btn"
 											><div style="cursor: pointer">
-												<img
-													src="https://www.pngmart.com/files/16/Google-Logo-PNG-Image.png"
-													style="height: 35px"
-													alt=""
-												/>
+												<img src="./Google-Logo-PNG-Image.png" style="height: 35px" alt="" />
 											</div></button
 										>
 									</form>
