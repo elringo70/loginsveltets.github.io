@@ -57,6 +57,7 @@
 	}
 
 	async function loginWithEmailAndPassword() {
+		disabled = true;
 		try {
 			const formData = new FormData(this);
 
@@ -88,6 +89,9 @@
 					});
 					break;
 			}
+
+			disabled = false;
+
 			applyAction(result);
 		} catch (error: any) {
 			const errorCode = error.code;
@@ -108,6 +112,7 @@
 					});
 					break;
 			}
+			disabled = false;
 		}
 	}
 

@@ -1,5 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { error, redirect, type Actions } from '@sveltejs/kit';
+import admin from 'firebase-admin';
 
 const expiresIn = 1000 * 60 * 60 * 27 * 7;
 
@@ -27,5 +28,13 @@ export const actions: Actions = {
 		});
 
 		throw redirect(303, '/profile');
+	},
+	loginWithEmailAndPassword: async ({ request }) => {
+		const formData = await request.formData();
+
+		const body = {
+			email: formData.get('email'),
+			password: formData.get('password')
+		};
 	}
 };

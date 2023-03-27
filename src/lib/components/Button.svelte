@@ -19,4 +19,11 @@
 	export let onClick = () => {};
 </script>
 
-<button {type} class="btn {buttonColor}" {disabled} on:click={onClick}>{text}</button>
+<button {type} class="btn {buttonColor}" {disabled} on:click={onClick}>
+	{#if disabled}
+		<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+		Loading...
+	{:else}
+		{text}
+	{/if}
+</button>

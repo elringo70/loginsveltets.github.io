@@ -14,6 +14,7 @@
 	import { auth } from '../../utils/firebase';
 
 	import { Input, Button } from '../../lib/components/index';
+	import { goto } from '$app/navigation';
 
 	let disabled = false;
 
@@ -93,27 +94,40 @@
 	}
 
 	async function createUserWithEmailAndPasswordGoogle() {
+		disabled = true;
 		const formData = new FormData(this);
 
 		const email = formData.get('email') as string;
+		const password = formData.get('password') as string;
+		const confirmPassword = formData.get('confirm-password') as string;
 
-		const actionCodeSettings = {
-			// URL you want to redirect back to. The domain (www.example.com) for this
-			// URL must be in the authorized domains list in the Firebase Console.
-			url: 'http://127.0.0.1:5173/set-password',
-			handleCodeInApp: true
-		};
+		try {
+			if (password === confirmPassword) {
+				const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
+				if (userCredentials) {
+					this.reset();
+					goto('/');
+				}
+			} else if (!terms.checked) {
+				Swal.fire({
+					icon: 'warning',
+					title: 'Confirme los terminos y condiciones'
+				});
+			} else {
+				Swal.fire({
+					icon: 'warning',
+					title: 'Las contraseñas no conciden'
+				});
+			}
 
-		sendSignInLinkToEmail(auth, email, actionCodeSettings)
-			.then(() => {
-				localStorage.setItem('emailForSignIn', email);
-			})
-			.catch((error) => {
-				const errorCode = error.code;
-				const errorMessage = error.message;
-
-				console.log(errorCode, errorMessage);
+			disabled = false;
+		} catch (error) {
+			console.log(error);
+			Swal.fire({
+				icon: 'error',
+				title: 'Error en el servidor'
 			});
+		}
 	}
 </script>
 
@@ -133,13 +147,13 @@
 									autocomplete="off"
 								>
 									<Input name="email" type="email" placeholder="Correo electrónico" required />
-									<!-- <Input name="password" type="password" placeholder="Contraseña" required />
+									<Input name="password" type="password" placeholder="Contraseña" required />
 									<Input
 										name="confirm-password"
 										type="password"
 										placeholder="Confirmar contraseña"
 										required
-									/> -->
+									/>
 
 									<div class="form-check d-flex justify-content-center">
 										<input
